@@ -44,12 +44,13 @@ public abstract class AutonomousMode extends LinearOpMode {
 
     // Constants
     private static final double ARM_UP = 0.96;
-    private static final double ARM_DOWN = 0.12;
+    private static final double ARM_DOWN = 0.25;
     private static final double COLOR_LEFT = 0.0;
-    private static final double COLOR_RIGHT = 0.9;
+    private static final double COLOR_RIGHT = 1.0;
     private static final double MID_SERVO = 0.5;
-    private static final double CUBES_MIN = 0.15;
-    private static final double CUBES_MAX = 0.35;
+    private static final double CUBES_MIN = 0.65;
+    private static final double CUBES_MAX = 0.8;
+    private static final double LIFT_MAX = 5000;  //need to be set
 
     protected static final double COUNTS_PER_CM = 67;  //needs to be set
 
@@ -113,7 +114,10 @@ public abstract class AutonomousMode extends LinearOpMode {
         leftMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         cubesMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        cubesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         // Set the stopping method for wheels
         leftMotorF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotorB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -135,10 +139,11 @@ public abstract class AutonomousMode extends LinearOpMode {
         // Initialize servo positions
         servoArm.setPosition(ARM_UP);
         servoColor.setPosition(MID_SERVO);
-        servoCubesRight.setPosition(CUBES_MIN);
-        servoCubesLeft.setPosition(CUBES_MIN);
+        servoCubesRight.setPosition(CUBES_MAX);
+        servoCubesLeft.setPosition(CUBES_MAX);
         
-        // Calibrate gyro
+        // Calibrate sensors
+        colorSensor.enableLed(true);
         gyroSensor.calibrate();
 
         while(gyroSensor.getHeading() != 0);
@@ -636,9 +641,9 @@ public abstract class AutonomousMode extends LinearOpMode {
         rightMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         double speed ;
-        double pGain = 0.3;  //need to be set
-        double iGain = 0.2;  //need to be set
-        double dGain = 0.1;  //need to be set
+        double pGain = 0.003;  //need to be set
+        double iGain = 0.002;  //need to be set
+        double dGain = 0.01;  //need to be set
         int errorSum = 0;
         double dev = 10; //need to be set
 
@@ -655,8 +660,29 @@ public abstract class AutonomousMode extends LinearOpMode {
 
             speed = error * pGain + errorSum * iGain;
             speed = Range.clip(Math.abs(speed), -1.0, 1.0);
-            power_wheels(-speed, -speed, speed, speed);
+            power_wheels(-speed, -speed, -speed, -speed);
         }
+    }
+
+    protected  void rotate_ticks(int ticks, int trigo, double power){
+        leftMotorB.setTargetPosition(ticks);
+        leftMotorF.setTargetPosition(ticks);
+        rightMotorB.setTargetPosition(ticks);
+        rightMotorF.setTargetPosition(ticks);
+        leftMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while(opModeIsActive()&& (leftMotorB.isBusy() || leftMotorF.isBusy() ||
+                                    rightMotorB.isBusy() || rightMotorF.isBusy())){
+            power_wheels(power, power, -power, -power);
+            int heading = gyroSensor.getHeading();
+
+            telemetry.addData("heading", "%3d deg", heading);
+            telemetry.update();
+            idle();
+        }
+        stopWheels();
     }
 
     protected void run_forward(int power){
@@ -702,15 +728,21 @@ public abstract class AutonomousMode extends LinearOpMode {
     protected void ball_red(){
 
         servoColor.setPosition(MID_SERVO);
-        wait(0.2);
+        wait(2.0);
+
         servoArm.setPosition(ARM_DOWN);
-        wait(0.1);
+        wait(1.0);
 
         double red = colorSensor.red();
         double green = colorSensor.green();
         double blue = colorSensor.blue();
 
-        wait(0.1);
+        wait(1.0);
+
+        telemetry.addData("Red  ", red);
+        telemetry.addData("Green", green);
+        telemetry.addData("Blue ", blue);
+        telemetry.update();
 
         if(red > blue && red > green){
             servoColor.setPosition(COLOR_LEFT);
@@ -718,7 +750,7 @@ public abstract class AutonomousMode extends LinearOpMode {
             servoColor.setPosition(COLOR_RIGHT);
         }
 
-        wait(0.5);
+        wait(3.0);
 
         servoArm.setPosition(ARM_UP);
         servoColor.setPosition(COLOR_RIGHT);
@@ -728,23 +760,30 @@ public abstract class AutonomousMode extends LinearOpMode {
     protected void ball_blue(){
 
         servoColor.setPosition(MID_SERVO);
-        wait(0.2);
+        wait(2.0);
+
         servoArm.setPosition(ARM_DOWN);
-        wait(0.1);
+        wait(1.0);
+
 
         double red = colorSensor.red();
         double green = colorSensor.green();
         double blue = colorSensor.blue();
 
-        wait(0.1);
+        telemetry.addData("Red  ", red);
+        telemetry.addData("Green", green);
+        telemetry.addData("Blue ", blue);
+        telemetry.update();
+
+        wait(1.0);
 
         if(blue > red && blue > green){
-            servoColor.setPosition(COLOR_LEFT);
-        } else if(red > blue && red > green){
             servoColor.setPosition(COLOR_RIGHT);
+        } else if(red > blue && red > green){
+            servoColor.setPosition(COLOR_LEFT);
         }
 
-        wait(0.5);
+        wait(3.0);
 
         servoArm.setPosition(ARM_UP);
         servoColor.setPosition(COLOR_RIGHT);
@@ -752,18 +791,28 @@ public abstract class AutonomousMode extends LinearOpMode {
     }
 
     protected void cubes_to_position(int power, int target){
-        target = (int)Range.clip(target, CUBES_MIN, CUBES_MAX);
+        target = (int)Range.clip(target, 0, LIFT_MAX);
 
         cubesMotor.setTargetPosition(target);
         cubesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         cubesMotor.setPower(Range.clip(power, -1,1));
 
-        while(cubesMotor.isBusy()){
-
+        while(cubesMotor.isBusy() && opModeIsActive()){
+            idle();
         }
 
         cubesMotor.setPower(0);
         cubesMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    protected void grab_cube(boolean ok){
+        if(ok == true){
+            servoCubesLeft.setPosition(CUBES_MIN);
+            servoCubesRight.setPosition(CUBES_MIN);
+        } else{
+            servoCubesLeft.setPosition(CUBES_MAX);
+            servoCubesRight.setPosition(CUBES_MAX);
+        }
 
     }
 
