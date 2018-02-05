@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Created by Purplecoder on 27/01/2018.
  */
 
-@Autonomous(name = "Rotate_test", group = "Autonomous")
+@Autonomous(name = "Forward_test", group = "Autonomous")
 //@Disabled
-public class rotate_test extends AutonomousMode {
+public class forward_test extends AutonomousMode {
 
     @Override
     protected void initOpMode() throws InterruptedException {
@@ -19,8 +19,7 @@ public class rotate_test extends AutonomousMode {
 
     protected void runOp() throws InterruptedException {
 
-        //gyro_turn_right(90);
-        rotate_ticks(3000, 1);
+        run_forward(3000);
 
         telemetry.addData("Done!", "Exiting...");
         telemetry.update();
