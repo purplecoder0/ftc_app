@@ -22,8 +22,8 @@ public class DriverNewCoOp extends LinearOpMode {
     private DcMotor rightMotorF = null;
     private DcMotor rightMotorB = null;
     //Servos
-    private Servo servoClaw = null;
-    private Servo servoExtension  = null;
+    //private Servo servoClaw = null;
+    //private Servo servoExtension  = null;
     private Servo servoArm = null;
     private Servo servoColor = null;
     private Servo servoCubesLeft = null;
@@ -35,8 +35,8 @@ public class DriverNewCoOp extends LinearOpMode {
     private static final double EXTENSION_DOWN = 0.0;
     private static final double ARM_UP = 0.96;
     private static final double ARM_DOWN = 0.25;
-    private static final double COLOR_LEFT = 0.0;
-    private static final double COLOR_RIGHT = 1.0;
+    private static final double COLOR_FORWARD = 0.0;
+    private static final double COLOR_BACK = 1.0;
     private static final double MID_SERVO = 0.5;
     private static final double CUBES_MIN = 0.65;
     private static final double CUBES_MAX = 0.8;
@@ -54,7 +54,7 @@ public class DriverNewCoOp extends LinearOpMode {
     //@Override
     public void runOpMode() throws InterruptedException {
         // Map the motors
-        //relicMotor = hardwareMap.dcMotor.get("relic");
+        relicMotor = hardwareMap.dcMotor.get("relic");
         cubesMotor = hardwareMap.dcMotor.get("cubes");
         leftMotorF = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorB = hardwareMap.dcMotor.get("left_drive_back");
@@ -68,8 +68,8 @@ public class DriverNewCoOp extends LinearOpMode {
         servoCubesLeft = hardwareMap.servo.get("cubes_left");
         servoCubesRight = hardwareMap.servo.get("cubes_right");
         // Set wheel motor directions
-        leftMotorF.setDirection(DcMotor.Direction.REVERSE);
-        leftMotorB.setDirection(DcMotor.Direction.REVERSE);
+        leftMotorF.setDirection(DcMotor.Direction.FORWARD);
+        leftMotorB.setDirection(DcMotor.Direction.FORWARD);
         rightMotorF.setDirection(DcMotor.Direction.REVERSE);
         rightMotorB.setDirection(DcMotor.Direction.REVERSE);
         // Set the stopping method for wheels
@@ -78,7 +78,7 @@ public class DriverNewCoOp extends LinearOpMode {
         rightMotorF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotorB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //Set the relic mechanism direction
-       // relicMotor.setDirection(DcMotor.Direction.FORWARD);
+        relicMotor.setDirection(DcMotor.Direction.FORWARD);
         // Set the cubes mechanism direction
         cubesMotor.setDirection(DcMotor.Direction.FORWARD);
         // Set servo directions
@@ -89,7 +89,7 @@ public class DriverNewCoOp extends LinearOpMode {
         servoCubesLeft.setDirection(Servo.Direction.FORWARD);
         servoCubesRight.setDirection(Servo.Direction.REVERSE);
         // Set the motors power to 0
-        //relicMotor.setPower(0);
+        relicMotor.setPower(0);
         cubesMotor.setPower(0);
         leftMotorF.setPower(0);
         leftMotorB.setPower(0);
@@ -99,7 +99,7 @@ public class DriverNewCoOp extends LinearOpMode {
         //servoClaw.setPosition(CLAW_DOWN);
         //servoExtension.setPosition(EXTENSION_DOWN);
         servoArm.setPosition(ARM_UP);
-        servoColor.setPosition(COLOR_RIGHT);
+        servoColor.setPosition(COLOR_BACK);
         servoCubesRight.setPosition(CUBES_MIN);
         servoCubesLeft.setPosition(CUBES_MIN);
 
@@ -157,6 +157,11 @@ public class DriverNewCoOp extends LinearOpMode {
                 switchServoCubes = false;
             }
 
+            if(gamepad2.x){
+                servoCubesRight.setPosition(0.55);
+                servoCubesLeft.setPosition(0.55);
+            }
+
             // Cubes mechanism
             if (gamepad2.dpad_up) {
                 cubesMotor.setPower(cubesPower);
@@ -167,21 +172,20 @@ public class DriverNewCoOp extends LinearOpMode {
             }
 
             // Relic mechanism
-            /*
             if (gamepad1.dpad_up) {
                 relicMotor.setPower(relicPower);
             } else if (gamepad1.dpad_down) {
                 relicMotor.setPower(-relicPower);
             } else{
                 relicMotor.setPower(0);  // Stop the motor
-            }*/
+            }
 
             // Servo Extension Mechanism
-            if (gamepad1.a) {
+           /* if (gamepad1.a) {
                 servoExtension.setPosition(EXTENSION_UP);  // Servo Extension UP position
             } else if (gamepad1.b) {
                 servoExtension.setPosition(EXTENSION_DOWN);  // Servo Extension DOWN position
-            }
+            }*/
 
             /*
             // Servo Claw Mechanism
@@ -224,6 +228,7 @@ public class DriverNewCoOp extends LinearOpMode {
         leftMotorB.setPower(0);
         rightMotorF.setPower(0);
         rightMotorB.setPower(0);
+        cubesMotor.setPower(0);
     }
     //StopMotors
 

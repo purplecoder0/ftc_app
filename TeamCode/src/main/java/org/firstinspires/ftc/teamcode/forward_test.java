@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode.proto_new;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Created by Purplecoder on 27/01/2018.
  */
 
 @Autonomous(name = "Forward_test", group = "Autonomous")
-//@Disabled
+@Disabled
 public class forward_test extends AutonomousMode {
 
     @Override
@@ -19,7 +20,7 @@ public class forward_test extends AutonomousMode {
 
     protected void runOp() throws InterruptedException {
 
-        run_forward(3000);
+        run_forward(7000, 1);
 
         telemetry.addData("Done!", "Exiting...");
         telemetry.update();

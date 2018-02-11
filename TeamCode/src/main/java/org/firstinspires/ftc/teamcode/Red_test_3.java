@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode.proto_new;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Created by Purplecoder on 27/01/2018.
  */
 
-@Autonomous(name = "Red_Autonom", group = "Autonomous")
+@Autonomous(name = "Red_Autonom_3", group = "Autonomous")
 //@Disabled
-public class Red_test extends AutonomousMode {
+public class Red_test_3 extends AutonomousMode {
 
     @Override
     protected void initOpMode() throws InterruptedException {
@@ -31,20 +30,17 @@ public class Red_test extends AutonomousMode {
         wait(1.0);
 
         //rotate_ticks(800, -1);
-        move(0.4, -0.4); //stanga
-        wait(0.05);
+        move(-0.4, 0.4); //dreapta
+        wait(0.15);
 
-        wait(1.0);
+        wait(0.5);
 
         //run_forward(7000, 1);
 
         move(-0.6, -0.6);
-        wait(2.0);
+        wait(1.0);
 
         //rotate_ticks(400, 1);
-
-        move(0.3, -0.3); //stanga
-        wait(0.05);
 
         cubes_to_position(-1, 0);
 
