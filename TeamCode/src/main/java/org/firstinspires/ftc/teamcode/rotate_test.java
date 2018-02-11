@@ -20,8 +20,7 @@ public class rotate_test extends AutonomousMode {
 
     protected void runOp() throws InterruptedException {
 
-        //gyro_turn_right(90);
-        rotate_ticks(800, 1);
+        gyro_turn_pid(90);
 
         telemetry.addData("Done!", "Exiting...");
         telemetry.update();

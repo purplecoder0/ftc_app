@@ -270,6 +270,80 @@ public abstract class AutonomousMode extends LinearOpMode {
     }
     //RotateTicks
 
+    protected void gyro_turn_pid(int angle){
+        leftMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double speed ;
+        double pGain = 0.001;  //need to be set
+        double iGain = 0.000;  //need to be set
+        double dGain = 0.000;  //need to be set
+        int errorSum = 0, lastError;
+
+
+        gyroSensor.calibrate();
+        while(gyroSensor.getHeading() != 0);
+
+        int curr = gyroSensor.getHeading();
+        int error = 2;
+        lastError = error;
+        while(opModeIsActive() && error > 1) {
+            curr = gyroSensor.getHeading();
+            if(curr < angle)
+                error = angle - curr;
+            else
+                error = curr - angle;
+            errorSum += error;
+
+            speed = error * pGain + errorSum * iGain + (error-lastError)*dGain;
+            speed = Range.clip(Math.abs(speed), -1.0, 1.0);
+            power_wheels(-speed, -speed, speed, speed);
+
+            lastError = error;
+        }
+    }
+
+    protected void gyro_run_pid(double power){
+        leftMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotorB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double speed, speedL, speedR;
+        double pGain = 0.3;  //need to be set
+        double iGain = 0.2;  //need to be set
+        int errorSum = 0;
+        double dGain = 0.1;  //need to be set
+        double dev;
+
+        speed = speedL = speedR = Range.clip(Math.abs(power), -1.0, 1.0);
+
+        gyroSensor.calibrate();
+        while(gyroSensor.getHeading() != 0);
+
+        int curr = gyroSensor.getHeading();
+        int angle = curr;
+        int error = 1;
+
+        while(opModeIsActive() && error > 0) {
+            curr = gyroSensor.getHeading();
+            error = angle - curr;
+            errorSum += error;
+
+            if(error > 0){
+                speedL = speed + error * pGain + errorSum * iGain;
+                speedR = speed - error * pGain - errorSum * iGain;
+            } else {
+                speedL = speed - error * pGain - errorSum * iGain;
+                speedR = speed + error * pGain + errorSum * iGain;
+            }
+
+            speedL = Range.clip(Math.abs(speedL), -1.0, 1.0);
+            speedR = Range.clip(Math.abs(speedR), -1.0, 1.0);
+            power_wheels(speedL, speedL, speedR, speedR);
+        }
+    }
+
     // Move forward to a target using encoders
     protected void run_forward(int target, int trigo) {
         leftMotorF.setMode(DcMotor.RunMode.RUN_TO_POSITION);

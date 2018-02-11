@@ -20,7 +20,7 @@ public class forward_test extends AutonomousMode {
 
     protected void runOp() throws InterruptedException {
 
-        run_forward(7000, 1);
+        gyro_run_pid(0.7);
 
         telemetry.addData("Done!", "Exiting...");
         telemetry.update();

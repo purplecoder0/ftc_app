@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
- * Created by Alin on 27.01.2018,m
+ * Updated by Purplecoder on 11.01.2018
  */
 
 @TeleOp(name = "DriverCoOp", group = "TeleOp")
@@ -15,7 +15,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class DriverNewCoOp extends LinearOpMode {
 
     // Motors
-    private DcMotor relicMotor = null;
+    private DcMotor relicMotorL = null;
+    private DcMotor relicMotorR = null;
     private DcMotor cubesMotor = null;
     private DcMotor leftMotorF = null;
     private DcMotor leftMotorB = null;
@@ -40,6 +41,10 @@ public class DriverNewCoOp extends LinearOpMode {
     private static final double MID_SERVO = 0.5;
     private static final double CUBES_MIN = 0.65;
     private static final double CUBES_MAX = 0.8;
+    protected static final double LIFT_MIN = 0;
+    protected static final double LIFT_MAX = 6000;
+    protected static final double RELIC_MIN = 0;
+    protected static final double RELIC_MAX = 8000;
     // Additional helper variables
     private double leftWheelsPower = 0, rightWheelsPower = 0;
     private double deadzone = 0.1;
@@ -54,7 +59,8 @@ public class DriverNewCoOp extends LinearOpMode {
     //@Override
     public void runOpMode() throws InterruptedException {
         // Map the motors
-        relicMotor = hardwareMap.dcMotor.get("relic");
+        relicMotorL = hardwareMap.dcMotor.get("relic_left");
+        relicMotorR = hardwareMap.dcMotor.get("relic_right");
         cubesMotor = hardwareMap.dcMotor.get("cubes");
         leftMotorF = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorB = hardwareMap.dcMotor.get("left_drive_back");
@@ -78,9 +84,13 @@ public class DriverNewCoOp extends LinearOpMode {
         rightMotorF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotorB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //Set the relic mechanism direction
-        relicMotor.setDirection(DcMotor.Direction.FORWARD);
+        relicMotorL.setDirection(DcMotor.Direction.FORWARD);
+        relicMotorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        relicMotorR.setDirection(DcMotor.Direction.REVERSE);
+        relicMotorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // Set the cubes mechanism direction
         cubesMotor.setDirection(DcMotor.Direction.FORWARD);
+        cubesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // Set servo directions
         //servoClaw.setDirection(Servo.Direction.FORWARD);
         //servoExtension.setDirection(Servo.Direction.FORWARD);
@@ -89,7 +99,8 @@ public class DriverNewCoOp extends LinearOpMode {
         servoCubesLeft.setDirection(Servo.Direction.FORWARD);
         servoCubesRight.setDirection(Servo.Direction.REVERSE);
         // Set the motors power to 0
-        relicMotor.setPower(0);
+        relicMotorL.setPower(0);
+        relicMotorR.setPower(0);
         cubesMotor.setPower(0);
         leftMotorF.setPower(0);
         leftMotorB.setPower(0);
@@ -164,20 +175,29 @@ public class DriverNewCoOp extends LinearOpMode {
 
             // Cubes mechanism
             if (gamepad2.dpad_up) {
-                cubesMotor.setPower(cubesPower);
+                if(cubesMotor.getCurrentPosition() < LIFT_MAX)
+                    cubesMotor.setPower(cubesPower);
             } else if (gamepad2.dpad_down) {
-                cubesMotor.setPower(-cubesPower);
+                if(cubesMotor.getCurrentPosition() > LIFT_MIN)
+                    cubesMotor.setPower(-cubesPower);
             } else {
                 cubesMotor.setPower(0);  // Stop the motor
             }
 
             // Relic mechanism
             if (gamepad1.dpad_up) {
-                relicMotor.setPower(relicPower);
+                if(relicMotorR.getCurrentPosition() < RELIC_MAX)
+                    relicMotorR.setPower(relicPower);
+                if(relicMotorL.getCurrentPosition() < RELIC_MAX)
+                    relicMotorL.setPower(relicPower);
             } else if (gamepad1.dpad_down) {
-                relicMotor.setPower(-relicPower);
+                if(relicMotorR.getCurrentPosition() > RELIC_MIN)
+                    relicMotorR.setPower(-relicPower);
+                if(relicMotorL.getCurrentPosition() > RELIC_MIN)
+                    relicMotorL.setPower(relicPower);
             } else{
-                relicMotor.setPower(0);  // Stop the motor
+                relicMotorL.setPower(0);  // Stop the motor
+                relicMotorR.setPower(0);  // Stop the motor
             }
 
             // Servo Extension Mechanism
