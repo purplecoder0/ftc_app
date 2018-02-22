@@ -237,7 +237,6 @@ public class DriverNewCoOp extends LinearOpMode {
             telemetry.update();
             idle();
 
-
         }
         stopMotors();  // Stop all the motors
     }
